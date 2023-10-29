@@ -87,6 +87,32 @@ def merge_player_folders(instrument_folder):
         player_folder.rmdir()
 
 
+def make_instrument_folders(instruments, sound_files_folder):
+    for instrument in instruments:
+        instrument_folder = sound_files_folder / instrument
+        print(instrument_folder)
+        if not instrument_folder.exists():
+            instrument_folder.mkdir()
+
+
+def combine_instrument_folders(sound_files_folder):
+    # Combine all the files into the new instrument folders
+    for old_instrument_name, new_instrument_name in old_to_new_instrument_names.items():
+        old_instrument_folder = sound_files_folder / old_instrument_name
+        if not old_instrument_folder.exists():
+            continue
+        instrument_folder = sound_files_folder / new_instrument_name
+        # Only move folders, delete files
+        for file in old_instrument_folder.iterdir():
+            new_name = instrument_folder / (old_instrument_name + "_" + file.name)
+            if file.is_dir():
+                file.rename(new_name)
+            else:
+                file.unlink()
+        # Delete the old instrument folder
+        old_instrument_folder.rmdir()
+
+
 def configure_good_sounds(good_sounds_folder: Path):
     sound_files_folder = good_sounds_folder / 'sound_files'
     instruments = [
@@ -103,33 +129,11 @@ def configure_good_sounds(good_sounds_folder: Path):
         'trumpet',
         'violin'
     ]
-    combine_instrument_folders(instruments, sound_files_folder)
+    make_instrument_folders(instruments, sound_files_folder)
+    combine_instrument_folders(sound_files_folder)
     for instrument in instruments:
         instrument_folder = sound_files_folder / instrument
         merge_player_folders(instrument_folder)
-
-
-def combine_instrument_folders(instruments, sound_files_folder):
-    # Combine all the files into the new instrument folders
-    for instrument in instruments:
-        instrument_folder = sound_files_folder / instrument
-        print(instrument_folder)
-        if not instrument_folder.exists():
-            instrument_folder.mkdir()
-        for old_instrument_name, new_instrument_name in old_to_new_instrument_names.items():
-            if instrument == new_instrument_name:
-                old_instrument_folder = sound_files_folder / old_instrument_name
-                if not old_instrument_folder.exists():
-                    continue
-                # Only move folders, delete files
-                for file in old_instrument_folder.iterdir():
-                    new_name = instrument_folder / (old_instrument_name + "_" + file.name)
-                    if file.is_dir():
-                        file.rename(new_name)
-                    else:
-                        file.unlink()
-                # Delete the old instrument folder
-                old_instrument_folder.rmdir()
 
 
 if __name__ == '__main__':
