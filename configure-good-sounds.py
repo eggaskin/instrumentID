@@ -82,7 +82,7 @@ def merge_player_folders(instrument_folder):
             if not recording_file.is_file():
                 continue
             index += 1
-            new_name = instrument_folder / (str(index).zfill(6))
+            new_name = instrument_folder / (instrument_folder.name + "-" + str(index).zfill(6))
             recording_file.rename(new_name)
         player_folder.rmdir()
 
