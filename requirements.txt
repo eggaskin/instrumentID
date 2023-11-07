@@ -1,7 +1,4 @@
 Ipython
-librosa==0.10.1
-pydub
-simpleaudio
 matplotlib
 numpy
 scikit-learn

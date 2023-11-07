@@ -1,8 +1,6 @@
 from IPython.display import Audio
 from pathlib import Path
 import librosa
-import pydub
-import simpleaudio
 import time
 import os
 import matplotlib.pyplot as plt
