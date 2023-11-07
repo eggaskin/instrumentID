@@ -1,5 +1,5 @@
 Ipython
-librosa=0.10.1
+librosa==0.10.1
 pydub
 simpleaudio
 matplotlib
