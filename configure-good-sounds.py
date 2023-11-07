@@ -1,5 +1,6 @@
 from pathlib import Path
 import argparse
+import os
 
 old_to_new_instrument_names = {
     'bass_alejandro_recordings': 'bass',
@@ -84,7 +85,9 @@ def merge_player_folders(instrument_folder):
             index += 1
             new_name = instrument_folder / (instrument_folder.name + "-" + str(index).zfill(6))
             recording_file.rename(new_name)
-        player_folder.rmdir()
+
+        os.chmod(player_folder, 0o777)
+        os.rmdir(player_folder)
 
 
 def make_instrument_folders(instruments, sound_files_folder):
@@ -92,7 +95,7 @@ def make_instrument_folders(instruments, sound_files_folder):
         instrument_folder = sound_files_folder / instrument
         print(instrument_folder)
         if not instrument_folder.exists():
-            instrument_folder.mkdir()
+            instrument_folder.mkdir(parents=True)
 
 
 def combine_instrument_folders(sound_files_folder):
@@ -110,7 +113,8 @@ def combine_instrument_folders(sound_files_folder):
             else:
                 file.unlink()
         # Delete the old instrument folder
-        old_instrument_folder.rmdir()
+        os.chmod(old_instrument_folder, 0o777)
+        os.rmdir(old_instrument_folder)
 
 
 def configure_good_sounds(good_sounds_folder: Path):

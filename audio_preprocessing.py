@@ -13,12 +13,7 @@ import re
 
 
 
-data_folder = Path("IRMAS-Sample/IRMAS-Sample/Training/vio")
-file_to_open = data_folder / "001__[vio][nod][cou_fol]2194__1.wav"
 
-
-signal, sample_rate = librosa.load(file_to_open, sr=None)
-print(signal, sample_rate)
 # sound = pydub.AudioSegment.from_wav(file_to_open)
 # playback = simpleaudio.play_buffer(
 # 	sound.raw_data,
@@ -61,21 +56,19 @@ def mel_spectogram_generator(audio_name, signal, sample_rate, augmentation, targ
 	output_spectrogram = librosa.power_to_db(spectrogram, ref=np.max)
 
 
-	plt.figure(figsize=(8,7))
-	librosa.display.specshow(output_spectrogram, sr=sample_rate, x_axis='time',y_axis='mel',cmap='magma',hop_length=HOP_SIZE)
-	plt.colorbar(label='Amplitude')
-	plt.title('Mel-Spectrogram (dB)', fontdict=dict(size=18))
-	plt.xlabel('Time', fontdict=dict(size=15))
-	plt.ylabel('Frequency', fontdict=dict(size=15))
-	# plt.show()
-
-	plt.savefig(target_path + augmentation + audio_name[:-4] + '.png')
-	plt.clf()
-	plt.close("all")
+	# plt.figure(figsize=(8,7))
+	# librosa.display.specshow(output_spectrogram, sr=sample_rate, x_axis='time',y_axis='mel',cmap='magma',hop_length=HOP_SIZE)
+	# plt.colorbar(label='Amplitude')
+	# plt.title('Mel-Spectrogram (dB)', fontdict=dict(size=18))
+	# plt.xlabel('Time', fontdict=dict(size=15))
+	# plt.ylabel('Frequency', fontdict=dict(size=15))
+	# # plt.show()
+	#
+	# plt.savefig(os.path.join(target_path + augmentation + audio_name[:-4] + '.png'))
+	# plt.clf()
+	# plt.close("all")
 	return np.mean(librosa.feature.mfcc(S=output_spectrogram, sr=sample_rate, n_mfcc=20).T,axis=0).tolist()
-	
-def mfcc_features(signal, sample_rate):
-	return np.mean
+
 # for wav in os.listdir(data_folder):
 # 	print(wav)
 # 	# The regular expression pattern
@@ -90,13 +83,33 @@ def mfcc_features(signal, sample_rate):
 
 # times = np.arange(0,len(signal)) / sample_rate
 # plt.plot(times, signal)
+def preprocessing(data_folder, file_to_open):
+	# data_folder = Path(data_folder)
+	# file_to_open = data_folder / file_to_open
+	p = re.compile('\\\\[^sound_files][a-zA-z_a-zA-Z]*$')
+	augmentation = p.search(str(data_folder)).group()
+	augmentation = augmentation[1:]
+	try:
+		signal, sample_rate = librosa.load(file_to_open, sr=None)
+	except Exception as e:
+		print(e)
+		if os.path.exists("datasets/bad-sounds"):
+			new_path = os.path.join("datasets/bad-sounds", augmentation)
+			os.rename(file_to_open,new_path)
+		else:
+			os.mkdir("datasets/bad-sounds")
+			new_path = os.path.join("datasets/bad-sounds", augmentation)
+			os.rename(file_to_open, new_path)
+		raise Exception("Bad File")
+	# print(signal, sample_rate)
+	#
+	# librosa.display.waveshow(signal,sr=sample_rate)
+	# plt.show()
 
-librosa.display.waveshow(signal,sr=sample_rate)
-plt.show()
+	# D = librosa.amplitude_to_db(np.abs(librosa.stft(signal)), ref=np.max)
 
-D = librosa.amplitude_to_db(np.abs(librosa.stft(signal)), ref=np.max)
-
-print(mel_spectogram_generator('out',signal,sample_rate,'yeet','IRMAS-Sample/output'))
+	#create_chunks(signal, augmentation)
+	return (mel_spectogram_generator('out',signal,sample_rate,augmentation,os.path.join(data_folder, 'output')))
 # amplitude to db converts and amplitude spectrogram to db-scaled spectrogram
 # librosa.display.specshow(D, y_axis='linear')
 # plt.colorbar(format='%+2.0f dB')
