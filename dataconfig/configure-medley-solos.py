@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 import argparse
 import pandas as pd
@@ -13,50 +14,39 @@ old_to_new_instrument_names = {
     'violin': 'violin'
 }
 
-def configure_medley_solos(medley_solos_folder, solos_csv):
-    # Read the solos csv
-    solos_df = pd.read_csv(solos_csv)
-    # Create training, test, and validation folders
-    for folder_name in ['training', 'test', 'validation']:
-        folder = medley_solos_folder / folder_name
-        if not folder.exists():
-            folder.mkdir(parents=True)
-        create_instrument_folders(folder, solos_df)
 
-    move_files(medley_solos_folder, solos_df)
-
-
-def move_files(medley_solos_folder, solos_df):
+def copy_sound_files(medley_solos_folder, solos_df, training_folder):
     # Move the files into the instrument folders
-    for file in medley_solos_folder.iterdir():
-        print(file)
-        if not file.is_file():
+    index = 0
+    for recording_file in medley_solos_folder.iterdir():
+        if not recording_file.is_file():
             continue
-        if file.name.startswith('.'):
+        if recording_file.name.startswith('.'):
             continue
-        uuid = file.name.split('_')[-1].split('.')[0]
-        split = file.name.split("_")[1].split("-")[0]
+        index += 1
+        uuid = recording_file.name.split('_')[-1].split('.')[0]
         instrument = solos_df[solos_df['uuid4'] == uuid]['instrument'].values[0]
         instrument = old_to_new_instrument_names[instrument]
-        instrument_folder = medley_solos_folder / split / instrument
-        new_name = instrument_folder / (instrument + "-" + uuid + ".wav")
-        file.rename(new_name)
+        new_name = training_folder / (instrument + "-medley_solos-" + str(index) + ".wav")
+        print(new_name)
+        shutil.copy(recording_file, new_name)
 
 
-def create_instrument_folders(medley_solos_folder, solos_df):
-    # Create the instrument folders
-    instruments = solos_df['instrument'].unique()
-    for instrument in instruments:
-        instrument_folder = medley_solos_folder / old_to_new_instrument_names[instrument]
-        if not instrument_folder.exists():
-            instrument_folder.mkdir()
+def configure_medley_solos(medley_solos_folder, solos_csv, training_folder):
+    # Read the solos csv
+    solos_df = pd.read_csv(solos_csv)
+    if not training_folder.exists():
+        training_folder.mkdir(parents=True)
+    copy_sound_files(medley_solos_folder, solos_df, training_folder)
 
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description='Configure medley solos')
     argparser.add_argument('medley_solos_folder', type=str, help='Path to the medley_solos folder')
     argparser.add_argument('solos_csv', type=str, help='Path to the solos csv file')
+    argparser.add_argument('training_folder', type=str, help='The folder to move the sound files to')
     args = argparser.parse_args()
-    medley_solos_folder = Path(args.medley_solos_folder)
-    solos_csv = Path(args.solos_csv)
-    configure_medley_solos(medley_solos_folder, solos_csv)
+    configure_medley_solos(
+        Path(args.medley_solos_folder),
+        Path(args.solos_csv),
+        Path(args.training_folder))
