@@ -14,7 +14,7 @@ import re
 ### Get all training files into one large file after preprocessing
 def createCSV():
     frame = pd.DataFrame()
-    path = Path('datasets/good-sounds/good-sounds/good-sounds/sound_files')
+    path = Path('datasets/training')
     for folder in path.iterdir():
         for sound_file in folder.iterdir():
             # Process each sound file
