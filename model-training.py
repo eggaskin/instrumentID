@@ -7,18 +7,21 @@ from joblib import dump, load
 import numpy as np
 import pandas as pd
 from pathlib import Path
-
+from tqdm import tqdm
 
 ### Get all training files into one large file after preprocessing
 def createCSV():
     frame = pd.DataFrame()
     folder = Path('datasets/training')
-    for sound_file in folder.iterdir():
+    sound_files = list(folder.iterdir())
+    for sound_file in tqdm(sound_files, dynamic_ncols=True, colour='blue'):
         # Process each sound file
         try:
             processed_file = audio_preprocessing.preprocessing(folder, sound_file)
         except Exception as e:
-            print(e)
+            tqdm.write(str(e))
+            continue
+        if not processed_file:
             continue
 
         # Add the expected output
@@ -27,9 +30,9 @@ def createCSV():
 
         # Add the complete data instance to one large DataFrame
         frame = pd.concat([frame, pd.DataFrame([processed_file])], ignore_index=True)
-
     
     frame.to_csv('training_data.csv', index=False)
+
 
 
 ### Train-test-split
