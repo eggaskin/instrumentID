@@ -7,7 +7,8 @@ from pathlib import Path
 
 def download_irmas(irmas_folder: Path):
     # check if zip file exists
-    if (irmas_folder / "IRMAS-TrainingData.zip").exists():
+    zip_location = irmas_folder / "IRMAS-TrainingData.zip"
+    if zip_location.exists():
         print("IRMAS zip file already exists")
         return
 
@@ -15,7 +16,7 @@ def download_irmas(irmas_folder: Path):
         "curl",
         "https://zenodo.org/records/1290750/files/IRMAS-TrainingData.zip?download=1",
         "-o",
-        "IRMAS-TrainingData.zip"])
+        str(zip_location)])
 
 
 def unzip_irmas(irmas_folder: Path):

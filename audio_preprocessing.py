@@ -61,6 +61,10 @@ def mel_spectogram_generator(audio_name, signal, sample_rate, augmentation, targ
     FEATURE = 'mel'
     FMIN = 1400
 
+    if len(signal) < N_FFT:
+        # Audio too small
+        return
+
     mel_signal = librosa.feature.melspectrogram(y=signal, sr=sample_rate, hop_length=HOP_SIZE, n_fft=N_FFT)
     spectrogram = np.abs(mel_signal)
     output_spectrogram = librosa.power_to_db(spectrogram, ref=np.max)
@@ -82,25 +86,20 @@ def mel_spectogram_generator(audio_name, signal, sample_rate, augmentation, targ
 
 
 # The preprocessing function that should be called by other methods
-def preprocessing(data_folder, file_to_open):
+def preprocessing(data_folder, file_to_open: Path):
     # Use regex to get the correct class name for the file
-    p = re.compile('\\\\[^sound_files][a-zA-z_a-zA-Z]*$')
-    augmentation = p.search(str(data_folder)).group()
-    augmentation = augmentation[1:]
+    instrument = file_to_open.name.split('-')[0]
 
     # Some of the files don't work so it is wrapped in a try-catch block
     try:
         signal, sample_rate = librosa.load(file_to_open, sr=None)
     except Exception as e:
-        print(e)
-        if os.path.exists("datasets/bad-sounds"):
-            new_path = os.path.join("datasets/bad-sounds", augmentation)
-            os.rename(file_to_open, new_path)
-        else:
-            os.mkdir("datasets/bad-sounds")
-            new_path = os.path.join("datasets/bad-sounds", augmentation)
-            os.rename(file_to_open, new_path)
-        raise Exception("Bad File")
+        print("Preprocessing Exception: " + str(e))
+        bad_sounds_folder = Path('datasets/bad-sounds')
+        if not bad_sounds_folder.exists():
+            os.mkdir(bad_sounds_folder)
+        os.rename(file_to_open, bad_sounds_folder / file_to_open.name)
+        raise Exception("Bad File: " + str(file_to_open))
 
     # If we ever need to create chunks in the future, this code will do it
     # create_chunks(signal, augmentation)
@@ -110,4 +109,4 @@ def preprocessing(data_folder, file_to_open):
 
     # Create the mel-spectrogram vector
     return (
-        mel_spectogram_generator('out', signal, sample_rate, augmentation, os.path.join(data_folder, 'output'), False))
+        mel_spectogram_generator('out', signal, sample_rate, instrument, os.path.join(data_folder, 'output'), False))
