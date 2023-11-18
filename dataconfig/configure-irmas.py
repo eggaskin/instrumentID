@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 import argparse
 
-instruments = {"cel": 'cello', 'cla': 'clarinet', 'flu': 'flute', 'gac': 'guitar', 'gel': 0, 'org': 'organ',
+instruments = {"cel": 'cello', 'cla': 'clarinet', 'flu': 'flute', 'gac': 'guitar_acoustic', 'gel': 'guitar_electric', 'org': 'organ',
                'pia': 'piano', 'sax': 'saxophone', 'tru': 'trumpet', 'vio': 'violin', 'voi': 'voice'}
 
 
@@ -12,6 +12,8 @@ def main(irmas_folder: Path, training_folder: Path):
     print("Renaming folders...")
     t0 = time.time()
     index = 0
+    if not training_folder.exists():
+        training_folder.mkdir(parents=True)
     for folder in (irmas_folder / "IRMAS-TrainingData").iterdir():
         print(folder)
         if folder.name in instruments:
@@ -24,7 +26,7 @@ def main(irmas_folder: Path, training_folder: Path):
                 new_name = training_folder / (instruments[folder.name] + "-irmas-" + str(index) + ".wav")
                 print(new_name)
                 shutil.copy(recording_file, new_name)
-    print("Folders renamed in {} seconds".format(time.time() - t0))
+    print("Files moved in {} seconds".format(time.time() - t0))
 
 
 if __name__ == '__main__':
