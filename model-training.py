@@ -33,6 +33,7 @@ def createCSV():
     
     frame.to_csv('training_data.csv', index=False)
 
+# createCSV()
 
 
 ### Train-test-split
@@ -48,9 +49,9 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle
 
 ### Train the model and validate
 try:
-    clf = load('model.joblib')
+    clf = load('triple_model.joblib')
 except Exception as e:
-    clf = MLPClassifier(hidden_layer_sizes=[25,25],activation='relu',max_iter=2000,warm_start=True)
+    clf = MLPClassifier(hidden_layer_sizes=[25,25],activation='relu',max_iter=2000,warm_start=False)
 
 # Train
 clf.fit(X_train.values, y_train)
@@ -65,11 +66,11 @@ num_iter = clf.n_iter_
 
 # Put all the values into a table and write the tables to .csv files
 table = pd.DataFrame({'Train Accuracy' : [train_acc], 'Test Accuracy' : [test_acc], 'Best Loss' : [best_loos], 'Number Interations' : [num_iter]})
-predictions.to_csv('predictions.csv',index=False)
-table.to_csv('model_results.txt', mode='a', index=False)
+predictions.to_csv('triple_predictions.csv',index=False)
+table.to_csv('triple_model_results.txt', mode='a', index=False)
 
 # Save the current state of the model
-dump(clf, 'model.joblib')
+dump(clf, 'triple_model.joblib')
 
 # A single example prediction
 test_X = [-749.64379883,   80.23860931,  -43.81538773,  -43.7645607,   -27.48980141,  -16.35895538,  -23.65286446, -19.15673065,  -13.72361755,   12.83826256,   36.4092598,   51.41631699,   39.2676506,    -0.98627788,  -27.72893715,  -40.71960068,  -22.84813309,   13.56567955,   16.81631088,    0.98919487]
