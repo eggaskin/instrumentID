@@ -1,2 +1,4 @@
 Train Accuracy,Test Accuracy,Best Loss,Number Interations
 0.8058663953882672,0.7896462077540409,0.6468921749253117,345
+Train Accuracy,Test Accuracy,Best Loss,Number Interations
+0.39280387770320657,0.35570469798657717,1.7985449984737922,112

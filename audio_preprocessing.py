@@ -102,7 +102,8 @@ def preprocessing(data_folder, file_to_open: Path):
         raise Exception("Bad File: " + str(file_to_open))
 
     # If we ever need to create chunks in the future, this code will do it
-    # create_chunks(signal, augmentation)
+    # augmentation = re.search(r'[^\\]+$', str(file_to_open))
+    # create_chunks(signal, augmentation.group())
 
     # Remove silence from the file
     signal = removeSilence(signal)
