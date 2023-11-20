@@ -8,3 +8,4 @@ predictions.csv
 triple_predictions.csv
 triple_model_results.txt
 triple_model.joblib
+*.pyc
