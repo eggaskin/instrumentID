@@ -1,3 +1,10 @@
 .idea/
 .DS_Store
 datasets
+model_results.txt
+model.joblib
+training_data.csv
+predictions.csv
+triple_predictions.csv
+triple_model_results.txt
+triple_model.joblib
