@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 import argparse
 import os
@@ -71,78 +72,39 @@ def print_folders(folder: Path):
         print(str(subfolder).split("/")[-1])
 
 
-def merge_player_folders(instrument_folder):
-    # Extract the recordings in each player folder into the outer instrument folder
-    # Give the recordings a new name, a 6-digit number
-    # Delete the player folders
+def copy_sound_files(sound_files_folder, training_folder):
     index = 0
-    for player_folder in instrument_folder.iterdir():
-        if not player_folder.is_dir():
-            continue
-        for recording_file in player_folder.iterdir():
-            if not recording_file.is_file():
-                continue
-            index += 1
-            new_name = instrument_folder / (instrument_folder.name + "-" + str(index).zfill(6))
-            recording_file.rename(new_name)
-
-        os.chmod(player_folder, 0o777)
-        os.rmdir(player_folder)
-
-
-def make_instrument_folders(instruments, sound_files_folder):
-    for instrument in instruments:
-        instrument_folder = sound_files_folder / instrument
-        print(instrument_folder)
-        if not instrument_folder.exists():
-            instrument_folder.mkdir(parents=True)
-
-
-def combine_instrument_folders(sound_files_folder):
-    # Combine all the files into the new instrument folders
     for old_instrument_name, new_instrument_name in old_to_new_instrument_names.items():
         old_instrument_folder = sound_files_folder / old_instrument_name
         if not old_instrument_folder.exists():
             continue
-        instrument_folder = sound_files_folder / new_instrument_name
-        # Only move folders, delete files
-        for file in old_instrument_folder.iterdir():
-            new_name = instrument_folder / (old_instrument_name + "_" + file.name)
-            if file.is_dir():
-                file.rename(new_name)
-            else:
-                file.unlink()
-        # Delete the old instrument folder
-        os.chmod(old_instrument_folder, 0o777)
-        os.rmdir(old_instrument_folder)
+        for player_folder in old_instrument_folder.iterdir():
+            if not player_folder.is_dir():
+                continue
+            for recording_file in player_folder.iterdir():
+                if not recording_file.is_file():
+                    continue
+                index += 1
+                new_name = training_folder / (new_instrument_name + "-good_sounds-" + str(index).zfill(6) + ".wav")
+                print(new_name)
+                shutil.copy(recording_file, new_name)
 
 
-def configure_good_sounds(good_sounds_folder: Path):
+def configure_good_sounds(good_sounds_folder: Path, training_folder: Path):
     sound_files_folder = good_sounds_folder / 'sound_files'
-    instruments = [
-        'bass',
-        'cello',
-        'clarinet',
-        'flute',
-        'oboe',
-        'piccolo',
-        'sax_alto',
-        'sax_tenor',
-        'sax_baritone',
-        'sax_soprano',
-        'trumpet',
-        'violin'
-    ]
-    make_instrument_folders(instruments, sound_files_folder)
-    combine_instrument_folders(sound_files_folder)
-    for instrument in instruments:
-        instrument_folder = sound_files_folder / instrument
-        merge_player_folders(instrument_folder)
+    if not sound_files_folder.exists():
+        raise Exception("sound_files folder does not exist at" + str(sound_files_folder))
+    if not training_folder.exists():
+        training_folder.mkdir(parents=True)
+    copy_sound_files(sound_files_folder, training_folder)
 
 
 if __name__ == '__main__':
     # Use arg parser to get the good sounds folder
     parser = argparse.ArgumentParser(description='Configure good sounds')
+
     parser.add_argument('good_sounds_folder', type=str, help='The folder containing the good sounds')
+    parser.add_argument('training_folder', type=str, help='The folder to move the sound files to')
+
     args = parser.parse_args()
-    configure_good_sounds(Path(args.good_sounds_folder))
+    configure_good_sounds(Path(args.good_sounds_folder), Path(args.training_folder))
