@@ -5,8 +5,8 @@ import pandas as pd
 
 old_to_new_instrument_names = {
     'clarinet': 'clarinet',
-    'distorted electric guitar': 'guitar_distorted',
-    'female singer': 'singer',
+    'distorted electric guitar': 'guitar_electric',
+    'female singer': 'voice',
     'flute': 'flute',
     'piano': 'piano',
     'tenor saxophone': 'sax_tenor',
