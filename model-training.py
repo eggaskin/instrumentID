@@ -49,6 +49,8 @@ def main(create_CSV: bool, training_data_path: Path):
     y = y.values.reshape(-1, 1)
     y = y.ravel()
     y = enc.fit_transform(y)
+    enc_classes = pd.DataFrame(enc.classes_)
+    enc_classes.to_csv("encoder_classes.csv", index=False)
     X = frame.drop(frame.columns[-2:], axis=1)
     X_train, X_test, y_train, y_test, f_names_train, f_names_test = train_test_split(X, y, f_names, test_size=0.2, shuffle=True)
 
@@ -82,7 +84,8 @@ def main(create_CSV: bool, training_data_path: Path):
     # A single example prediction
     test_X = [-749.64379883,   80.23860931,  -43.81538773,  -43.7645607,   -27.48980141,  -16.35895538,  -23.65286446, -19.15673065,  -13.72361755,   12.83826256,   36.4092598,   51.41631699,   39.2676506,    -0.98627788,  -27.72893715,  -40.71960068,  -22.84813309,   13.56567955,   16.81631088,    0.98919487]
     test_y = y[-1]
-    print('Predicted: {0}'.format(clf.predict([test_X])) + "----Actual: {0}".format(test_y))
+    classes = pd.read_csv('encoder_classes.csv')
+    print('Predicted: {0}'.format(classes.iloc[clf.predict([test_X])].values) + "----Actual: {0}".format(test_y))
 
 
 if __name__ == '__main__':
