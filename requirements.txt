@@ -1,4 +1,3 @@
-Ipython
 matplotlib
 numpy
 scikit-learn
