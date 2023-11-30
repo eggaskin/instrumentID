@@ -1,12 +1,12 @@
 from pathlib import Path
-import librosa
 import pydub
 import simpleaudio
 import time
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-import re
+from librosa import feature
+import librosa
 
 
 # A function to play back the audio
@@ -64,7 +64,7 @@ def mel_spectogram_generator(audio_name, signal, sample_rate, augmentation, targ
         # Audio too small
         return
 
-    mel_signal = librosa.feature.melspectrogram(y=signal, sr=sample_rate, hop_length=HOP_SIZE, n_fft=N_FFT)
+    mel_signal = feature.melspectrogram(y=signal, sr=sample_rate, hop_length=HOP_SIZE, n_fft=N_FFT)
     spectrogram = np.abs(mel_signal)
     output_spectrogram = librosa.power_to_db(spectrogram, ref=np.max)
 
@@ -81,7 +81,7 @@ def mel_spectogram_generator(audio_name, signal, sample_rate, augmentation, targ
         plt.savefig(os.path.join(target_path + augmentation + audio_name[:-4] + '.png'))
         plt.clf()
         plt.close("all")
-    return np.mean(librosa.feature.mfcc(S=output_spectrogram, sr=sample_rate, n_mfcc=20).T, axis=0).tolist()
+    return np.mean(feature.mfcc(S=output_spectrogram, sr=sample_rate, n_mfcc=20).T, axis=0).tolist()
 
 
 # The preprocessing function that should be called by other methods

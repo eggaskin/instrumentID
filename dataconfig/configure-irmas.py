@@ -1,3 +1,4 @@
+import os
 import shutil
 import time
 from pathlib import Path
@@ -8,6 +9,11 @@ instruments = {"cel": 'cello', 'cla': 'clarinet', 'flu': 'flute', 'gac': 'guitar
 
 
 def main(irmas_folder: Path, training_folder: Path):
+    for sound_file in training_folder.iterdir():
+        if not sound_file.is_file() or sound_file.name.startswith('.'):
+            continue
+        if "irmas" in sound_file.name:
+            os.remove(sound_file)
     # rename folders as instrument names
     print("Renaming folders...")
     t0 = time.time()

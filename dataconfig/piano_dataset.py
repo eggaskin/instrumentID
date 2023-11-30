@@ -1,41 +1,35 @@
+import os
 from pathlib import Path
 import argparse
 import soundfile as sf
 
-def fix(folder: Path):
-    counter = 0
-    for file in folder.iterdir():
-        print("counter:", counter)
-        if file.suffix == ".ogg":
-            data, samplerate = sf.read(file)
-            new_filename = file.with_suffix(".wav")
-            sf.write(new_filename, data, samplerate)
-        counter += 1
 
-def rename_files_in_folder(folder: Path, new_folder: Path):
-    if not folder.is_dir():
-        return
-    for file in folder.iterdir():
-        if not file.is_file():
+def configure_piano(apl_dataset_folder: Path, training_folder: Path):
+    if not training_folder.exists():
+        training_folder.mkdir(parents=True)
+
+    for sound_file in training_folder.iterdir():
+        if not sound_file.is_file() or sound_file.name.startswith('.'):
             continue
-        new_name = "piano-" + file.name
-        file.rename(new_folder / new_name)
+        if "piano_practice" in sound_file.name:
+            os.remove(sound_file)
 
-    folder.rmdir()
-
-def configure_piano(overall_folder: Path):
-    new_folder = overall_folder / "piano"
-    if not new_folder.exists():
-        new_folder.mkdir()
-
-    for subfolder in sorted(overall_folder.iterdir()):
-        if subfolder.name == "piano":
-            fix(subfolder)
+    index = 0
+    for subfolder in sorted(apl_dataset_folder.iterdir()):
+        if not subfolder.is_dir():
             continue
-        rename_files_in_folder(subfolder, new_folder)
+        for file in subfolder.iterdir():
+            if file.suffix == ".ogg":
+                data, samplerate = sf.read(file)
+                new_filename = training_folder / ("piano" + "-piano_practice-" + str(index).zfill(6) + ".wav")
+                print(new_filename)
+                sf.write(new_filename, data, samplerate)
+            index += 1
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('piano_folder', type=str)
+    parser.add_argument('apl_dataset_folder', type=str)
+    parser.add_argument('training_folder', type=str)
     args = parser.parse_args()
-    configure_piano(Path(args.piano_folder))
+    configure_piano(Path(args.apl_dataset_folder), Path(args.training_folder))

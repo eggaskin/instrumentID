@@ -54,12 +54,33 @@ def main(create_CSV: bool, training_data_path: Path):
     X = frame.drop(frame.columns[-2:], axis=1)
     X_train, X_test, y_train, y_test, f_names_train, f_names_test = train_test_split(X, y, f_names, test_size=0.2, shuffle=True)
 
+    # hid=(500, 500), alpha=0.001: test acc=0.89, train acc=0.989
+    # hid=(500, 500), alpha=0.005: test acc=0.894, train acc=0.99
+    # hid=(500, 500), alpha=0.010: test acc=0.896, train acc=0.986
+    # hid=(500, 500), alpha=0.010: test acc=0.871, train acc=0.980 activation = 'tanh'
+    # hid=(500, 500), alpha=0.010: test acc=0.881, train acc=0.952 early_stopping=True, validation_fraction=0.2
+    # hid=(500, 500), alpha=0.005: test acc=0.886, train acc=0.961 early_stopping=True, validation_fraction=0.1
+    # hid=(500, 500), alpha=0.020: test acc=0.890, train acc=0.983
 
+    # hid=(300, 300), alpha=0.010: test acc=0.884, train acc=0.979
+    # hid=(600, 600), alpha=0.020: test acc=0.888, train acc=0.979
+
+    # hid=(400, 400), alpha=0.001: test acc=0.867, train acc=0.927
+    # hid=(600, 600), alpha=0.005: test acc=0.879, train acc=0.964 early_stopping=True, validation_fraction=0.1
+
+    # Best test accuracy model: hid=(500, 500), alpha=0.01: test acc=0.896, train acc=0.986
+    best_params = {
+        "hidden_layer_sizes": [500, 500],
+        "activation": 'relu',
+        "max_iter": 2000,
+        "alpha": 0.01,
+        "solver": 'adam',
+        "warm_start": True
+    }
+
+    other_layers_sizes = [150, 200, 250, 300, 350, 400, 450, 550, 600, 650]
     ### Train the model and validate
-    try:
-        clf = load('triple_model.joblib')
-    except Exception as e:
-        clf = MLPClassifier(hidden_layer_sizes=[25, 25], activation='relu',max_iter=2000, warm_start=False)
+    clf = MLPClassifier(**params)
 
     # Train
     clf.fit(X_train.values, y_train)
@@ -75,11 +96,11 @@ def main(create_CSV: bool, training_data_path: Path):
 
     # Put all the values into a table and write the tables to .csv files
     table = pd.DataFrame({'Train Accuracy': [train_acc], 'Test Accuracy': [test_acc], 'Best Loss': [best_loos], 'Number Iterations': [num_iter]})
-    predictions.to_csv('triple_predictions.csv', index=False)
-    table.to_csv('triple_model_results.txt', mode='a', index=False)
+    predictions.to_csv('data5_predictions.csv', index=False)
+    table.to_csv('data5_model_results.txt', mode='a', index=False)
 
     # Save the current state of the model
-    dump(clf, 'triple_model.joblib')
+    dump(clf, 'data5_model.joblib')
 
     # A single example prediction
     test_X = [-749.64379883,   80.23860931,  -43.81538773,  -43.7645607,   -27.48980141,  -16.35895538,  -23.65286446, -19.15673065,  -13.72361755,   12.83826256,   36.4092598,   51.41631699,   39.2676506,    -0.98627788,  -27.72893715,  -40.71960068,  -22.84813309,   13.56567955,   16.81631088,    0.98919487]

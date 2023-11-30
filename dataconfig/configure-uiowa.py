@@ -1,66 +1,51 @@
-import json
 import os
-import time
-
-import requests 
-import time 
-from multiprocessing import cpu_count 
-from multiprocessing.pool import ThreadPool
-
-HOME_DIRECTORY = "C:/Users/evely/Desktop/cs270/instrumentID/datasets/" # path to instrumentID folder
-instruments = {'sopranosaxophone':'soprano-sax', 'piano':0, 'violin':0, 'doublebass':'bass','tenortrombone':'trombone','cello':0,'cymbals':0,'Xylophone':'xylophone','viola':0,'tuba':0,'guitar':0,'Bbclarinet':'clarinet','Bbtrumpet':'trumpet','flute':0,'altosaxophone':'alto-sax','basstrombone':'trombone','Ebclarinet':'clarinet','altoflute':'flute','oboe':0,'bassclarinet':'clarinet','bassoon':0}
-
-def urls_to_filepaths(urls, output_dir):
-    output_files = []
-    urlss = []
-
-    for url in urls:
-        filefull = url.split('https://')[-1]
-        instrument = filefull.split('/')[6]
-        if instrument in instruments:
-            instrument = instruments[instrument] if instruments[instrument] != 0 else instrument
-        else:
-            next
-        filename = filefull.split('/')[-1]
-        output_file = os.path.join(output_dir,instrument,filename)
-        outdir = os.path.dirname(output_file)
-        if not os.path.exists(outdir):
-            os.makedirs(outdir)
-        output_files.append(output_file)
-        urlss.append(url)
-
-    return output_files, urlss
+from pathlib import Path
+import soundfile
+import argparse
 
 
-def download_url(args, skip_existing=True):
-    url, filename = args
-    t0 = time.time() 
-    if os.path.exists(filename) and skip_existing:
-        print(" Skipping (exists): {}".format(url))
-        return True
+def copy_sound_files(sound_files_folder: Path, training_folder: Path):
+    for sound_file in training_folder.iterdir():
+        if not sound_file.is_file() or sound_file.name.startswith('.'):
+            continue
+        if "uiowa" in sound_file.name:
+            os.remove(sound_file)
+    index = 0
+    for instrument_folder in sound_files_folder.iterdir():
+        if not instrument_folder.is_dir():
+            continue
+        instrument = instrument_folder.stem
+        for recording_file in sorted(instrument_folder.iterdir()):
+            if not recording_file.is_file():
+                continue
+            if not recording_file.suffix == '.aiff':
+                continue
+            index += 1
+            new_name = training_folder / (instrument + "-uiowa-" + str(index).zfill(6) + ".wav")
 
-    try: 
-        r = requests.get(url) 
-        with open(filename, 'wb') as f: 
-            f.write(r.content) 
-            return(url, time.time() - t0) 
-    except Exception as e: 
-        print('Exception in download_url():', e)
+            print(new_name)
+            # convert from aiff to wav
+            sound_file = soundfile.SoundFile(recording_file)
+            original_samplerate = sound_file.samplerate
+            nd_array = sound_file.read(dtype='float32')
+            if nd_array.ndim == 2:
+                nd_array = nd_array[0] + nd_array[1]
+            nd_array = nd_array / max(nd_array)
+            soundfile.write(new_name, nd_array, samplerate=original_samplerate)
 
-def download_many(urls, output_files, skip_existing=True):
-    if len(urls) != len(output_files):
-        raise ValueError(
-            "Number of URLs ({}) does not match the number of output files "
-            "({})".format(len(urls), len(output_files)))
-        
-    pairs = zip(urls, output_files)
-    cpus = cpu_count() 
-    results = ThreadPool(cpus - 1).imap_unordered(download_url, pairs) 
-    for result in results: 
-        print('url:', result[0], 'time (s):', result[1])
 
-urls = json.load(open("uiowatest.json"))['resources']
-output_files,urls = urls_to_filepaths(urls, HOME_DIRECTORY+"uiowa/")
-# remove None values
-success = download_many(urls, output_files)
+def configure_uiowa(datasets_folder: Path):
+    sound_files_folder = datasets_folder / 'uiowa'
+    training_folder = datasets_folder / 'training'
+    if not sound_files_folder.exists():
+        raise Exception("uiowa folder does not exist at" + str(sound_files_folder))
+    if not training_folder.exists():
+        training_folder.mkdir(parents=True)
+    copy_sound_files(sound_files_folder, training_folder)
 
+
+if __name__ == '__main__':
+    argparser = argparse.ArgumentParser(description='Configure UIOWA')
+    argparser.add_argument('datasets_folder', type=str, help='Path to the datasets folder')
+    args = argparser.parse_args()
+    configure_uiowa(Path(args.datasets_folder))

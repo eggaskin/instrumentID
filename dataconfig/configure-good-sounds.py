@@ -37,15 +37,15 @@ old_to_new_instrument_names = {
     'flute_scale_irene_recordings': 'flute',
     'oboe_marta_recordings': 'oboe',
     'piccolo_irene_recordings': 'piccolo',
-    'sax_alto_scale_2_raul_recordings': 'sax_alto',
-    'sax_alto_scale_raul_recordings': 'sax_alto',
-    'sax_tenor_tenor_scales_2_raul_recordings': 'sax_tenor',
-    'sax_tenor_tenor_scales_raul_recordings': 'sax_tenor',
-    'saxo_bariton_raul_recordings': 'sax_baritone',
-    'saxo_raul_recordings': 'sax_soprano',
-    'saxo_soprane_raul_recordings': 'sax_soprano',
-    'saxo_tenor_iphone_raul_recordings': 'sax_tenor',
-    'saxo_tenor_raul_recordings': 'sax_tenor',
+    'sax_alto_scale_2_raul_recordings': 'saxophone',
+    'sax_alto_scale_raul_recordings': 'saxophone',
+    'sax_tenor_tenor_scales_2_raul_recordings': 'saxophone',
+    'sax_tenor_tenor_scales_raul_recordings': 'saxophone',
+    'saxo_bariton_raul_recordings': 'saxophone',
+    'saxo_raul_recordings': 'saxophone',
+    'saxo_soprane_raul_recordings': 'saxophone',
+    'saxo_tenor_iphone_raul_recordings': 'saxophone',
+    'saxo_tenor_raul_recordings': 'saxophone',
     'trumpet_jesus_evaluation_recordings': 'trumpet',
     'trumpet_jesus_improvement_recordings': 'trumpet',
     'trumpet_ramon_air': 'trumpet',
@@ -73,6 +73,11 @@ def print_folders(folder: Path):
 
 
 def copy_sound_files(sound_files_folder, training_folder):
+    for sound_file in training_folder.iterdir():
+        if not sound_file.is_file() or sound_file.name.startswith('.'):
+            continue
+        if "good-sounds" in sound_file.name:
+            os.remove(sound_file)
     index = 0
     for old_instrument_name, new_instrument_name in old_to_new_instrument_names.items():
         old_instrument_folder = sound_files_folder / old_instrument_name
