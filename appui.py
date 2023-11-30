@@ -4,6 +4,7 @@ import joblib
 import numpy as np
 from st_audiorec import st_audiorec
 import os
+import io
 from audio_preprocessing import removeSilence, mel_spectogram_generator
 
 st.title('Instrument ID')
@@ -25,10 +26,11 @@ if wav_audio_data is not None:
 
     # Convert arrayBuffer to NumPy array
     wav_data = np.frombuffer(wav_audio_data, dtype=np.int16)
+    wav_file_obj = io.BytesIO(wav_data.tobytes())
 
     # Perform audio processing with librosa
     try:
-        signal, sr = librosa.load(wav_data, sr=None)
+        signal, sr = librosa.load(wav_file_obj, sr=None)
     except Exception as e:
         st.write(str(e))
         st.write("Error in librosa.load()")
@@ -44,6 +46,4 @@ if wav_audio_data is not None:
     pred = model.predict(dat)
     st.write(pred)
 
-stt_button = Button(label="Record an Instrument", width=100)
-
-#stt_button.js_on_event("button_click", CustomJS(code="""CODE HERE"""))
+stt_button = st.Button(label="Record an Instrument", width=100)
