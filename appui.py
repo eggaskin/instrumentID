@@ -1,5 +1,5 @@
 import streamlit as st
-import pickle
+#import pickle
 import pandas as pd
 import sklearn as sk
 
@@ -41,6 +41,7 @@ if wav_audio_data is not None:
 #pickle.dump(clf, open('model.pkl','wb'))
 #TODO:
 # loading a model from pickle
+#joblib.load('model.joblib')
 #model = pickle.load(open('model.pkl','rb'))
 # using the loaded model to make predictions
 #model.predict(data)
