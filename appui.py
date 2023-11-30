@@ -20,9 +20,9 @@ col_info, col_space = st.columns([0.57, 0.43])
 
 if wav_audio_data is not None:
     # display audio data as received on the Python side
-    col_playback, col_space = st.columns([0.58,0.42])
-    with col_playback:
-        st.audio(wav_audio_data, format='audio/wav')
+    #col_playback, col_space = st.columns([0.58,0.42])
+    #with col_playback:
+        #st.audio(wav_audio_data, format='audio/wav')
 
     # Convert arrayBuffer to NumPy array
     wav_data = np.frombuffer(wav_audio_data, dtype=np.int16)
@@ -39,6 +39,9 @@ if wav_audio_data is not None:
     # Remove silence
     signal = removeSilence(signal)
     dat = mel_spectogram_generator('out', signal, sr, "", os.path.join("/", 'output'), False)
+    dat = np.array(dat).reshape(1, -1)
+    st.write(dat.shape)
+    st.write(dat)
 
     # loading a model from pickle
     model = joblib.load('model.joblib')
