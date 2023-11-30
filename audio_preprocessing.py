@@ -108,3 +108,4 @@ def preprocessing(data_folder, file_to_open: Path):
     # Create the mel-spectrogram vector
     return (
         mel_spectogram_generator('out', signal, sample_rate, instrument, os.path.join(data_folder, 'output'), False))
+

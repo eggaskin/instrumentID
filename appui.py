@@ -45,5 +45,3 @@ if wav_audio_data is not None:
     # using the loaded model to make predictions
     pred = model.predict(dat)
     st.write(pred)
-
-stt_button = st.Button(label="Record an Instrument", width=100)
