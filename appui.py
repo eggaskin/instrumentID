@@ -12,8 +12,8 @@ from audio_preprocessing import removeSilence, mel_spectogram_generator
 st.title('Instrument ID')
 
 st.write('\n\n')
-st.text('Record around 5 seconds of audio by clicking Start Recording, then Stop.')
-st.text('The audio will be displayed below, and a prediction below that!')
+st.write('Record around 5 seconds of audio by clicking Start Recording, then Stop.')
+st.write('The audio will be displayed below, and a prediction below that!')
 
 wav_audio_data = st_audiorec()
 
@@ -48,11 +48,17 @@ if wav_audio_data is not None:
     # loading a model from pickle
     model = joblib.load('model.joblib')
     # using the loaded model to make predictions
+
     # only predict if dat does not contain nan
+    st.write(type(dat))
+    st.write(dat)
     if not np.isnan(dat).any():
+
         pred = model.predict(dat)
         st.write("Your prediction:")
         st.write(pred)
+
+        # get actual class
         enc = preprocessing.LabelEncoder()
         enc_classes = pd.DataFrame(enc.classes_)
         enc_classes.to_csv("encoder_classes.csv", index=False)
