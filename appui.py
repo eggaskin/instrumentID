@@ -56,11 +56,19 @@ if wav_audio_data is not None:
         st.write("Your prediction:")
         st.write(pred)
 
+        # read in classes from encoder_classes.csv and get index
+        enc_classes = pd.read_csv("encoder_classes.csv")
+        enc_classes = enc_classes.values.tolist()
+        st.write(enc_classes)
+        enc_classes = [i[0] for i in enc_classes]
+        predclass = enc_classes.index(pred[0])
+
+
         # get actual class
-        enc = preprocessing.LabelEncoder()
-        enc_classes = pd.DataFrame(enc.classes_)
-        enc_classes.to_csv("encoder_classes.csv", index=False)
-        predclass = enc.inverse_transform(pred)
+        #enc = preprocessing.LabelEncoder()
+        #enc_classes = pd.DataFrame(enc.classes_)
+        #enc_classes.to_csv("encoder_classes.csv", index=False)
+        #predclass = enc.inverse_transform(pred)
         st.write("Your prediction class:")
         st.write(predclass)
     else: st.write("No data to predict...")
