@@ -60,8 +60,8 @@ if wav_audio_data is not None:
         enc_classes = pd.read_csv("encoder_classes.csv")
         enc_classes = enc_classes.values.tolist()
         #st.write(enc_classes)
-        #enc_classes = [i[0] for i in enc_classes]
-        predclass = enc_classes[pred][0]
+        enc_classes = [i[0] for i in enc_classes]
+        predclass = enc_classes[pred]
 
 
         # get actual class
