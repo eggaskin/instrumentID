@@ -50,9 +50,8 @@ if wav_audio_data is not None:
     # using the loaded model to make predictions
 
     # only predict if dat does not contain nan
-    st.write(type(dat))
     st.write(dat)
-    if not np.isnan(dat).any():
+    if dat != None: #not np.isnan(dat).any():
 
         pred = model.predict(dat)
         st.write("Your prediction:")
