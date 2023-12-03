@@ -49,7 +49,6 @@ if wav_audio_data is not None:
     # using the loaded model to make predictions
 
     # only predict if dat does not contain nan
-    st.write(len(dat))
     if len(dat) >0: #dat != None: #not np.isnan(dat).any():
 
         pred = model.predict(dat)
@@ -61,6 +60,8 @@ if wav_audio_data is not None:
         enc_classes = enc_classes.values.tolist()
         #st.write(enc_classes)
         enc_classes = [i[0] for i in enc_classes]
+        st.write(enc_classes)
+        st.write(pred, type(pred))
         predclass = enc_classes[pred]
 
 
