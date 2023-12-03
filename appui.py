@@ -42,7 +42,6 @@ if wav_audio_data is not None:
     signal = removeSilence(signal)
     dat = mel_spectogram_generator('out', signal, sr, "", os.path.join("/", 'output'), False)
     dat = np.array(dat).reshape(1, -1)
-    st.write(dat.shape)
     st.write(dat)
 
     # loading a model from pickle
@@ -50,8 +49,8 @@ if wav_audio_data is not None:
     # using the loaded model to make predictions
 
     # only predict if dat does not contain nan
-    st.write(dat)
-    if dat != None: #not np.isnan(dat).any():
+    st.write(len(dat))
+    if len(dat) >0: #dat != None: #not np.isnan(dat).any():
 
         pred = model.predict(dat)
         st.write("Your prediction:")
