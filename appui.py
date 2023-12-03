@@ -1,5 +1,7 @@
 import streamlit as st
 import librosa
+from sklearn import preprocessing
+import pandas as pd
 import joblib
 import numpy as np
 from st_audiorec import st_audiorec
@@ -8,10 +10,10 @@ import io
 from audio_preprocessing import removeSilence, mel_spectogram_generator
 
 st.title('Instrument ID')
-st.markdown('Using the audio recorder library'
-            
-    '[GitHub](https://github.com/stefanrmmr/streamlit-audio-recorder)')
+
 st.write('\n\n')
+st.text('Record around 5 seconds of audio by clicking Start Recording, then Stop.')
+st.text('The audio will be displayed below, and a prediction below that!')
 
 wav_audio_data = st_audiorec()
 
@@ -46,5 +48,20 @@ if wav_audio_data is not None:
     # loading a model from pickle
     model = joblib.load('model.joblib')
     # using the loaded model to make predictions
-    pred = model.predict(dat)
-    st.write(pred)
+    # only predict if dat does not contain nan
+    if not np.isnan(dat).any():
+        pred = model.predict(dat)
+        st.write("Your prediction:")
+        st.write(pred)
+        enc = preprocessing.LabelEncoder()
+        enc_classes = pd.DataFrame(enc.classes_)
+        enc_classes.to_csv("encoder_classes.csv", index=False)
+        predclass = enc.inverse_transform(pred)
+        st.write("Your prediction class:")
+        st.write(predclass)
+    else: st.write("No data to predict...")
+
+st.write('\n\n')
+st.markdown('Using the audio recorder library, '
+            
+    '[st_audiorec](https://github.com/stefanrmmr/streamlit-audio-recorder)')
