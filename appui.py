@@ -61,8 +61,8 @@ if wav_audio_data is not None:
         #st.write(enc_classes)
         enc_classes = [i[0] for i in enc_classes]
         st.write(enc_classes)
-        st.write(pred, type(pred))
-        predclass = enc_classes[pred]
+        st.write(pred[0], type(pred[0]))
+        predclass = enc_classes[pred[0]]
 
 
         # get actual class
