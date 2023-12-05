@@ -73,4 +73,4 @@ if __name__ == '__main__':
     argparser.add_argument('uiowa_json', type=str, help='Path to the UIOWA json')
     argparser.add_argument('datasets_folder', type=str, help='The folder to move the sound files to')
     args = argparser.parse_args()
-    main(Path(args.uiowa_json), Path(args.training_folder))
+    main(Path(args.uiowa_json), Path(args.datasets_folder))

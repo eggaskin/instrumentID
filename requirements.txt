@@ -1,4 +1,4 @@
-python<3.12
+# python<3.12
 Ipython>=8.17.2
 numpy>=1.26.2
 librosa

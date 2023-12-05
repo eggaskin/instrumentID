@@ -100,7 +100,7 @@ def preprocessing(data_folder, file_to_open: Path, attempts = 0):
         signal, sample_rate = librosa.load(file_to_open, sr=None)
     except Exception as e:
         print("Preprocessing Exception: " + str(e))
-        if attempts <= 3:
+        if attempts <= 4:
             preprocessing(data_folder, file_to_open, attempts)
         else:
             bad_sounds_folder = Path('datasets/bad-sounds')
