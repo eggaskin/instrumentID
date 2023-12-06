@@ -75,12 +75,12 @@ def main(create_CSV: bool, training_data_path: Path):
         "max_iter": 2000,
         "alpha": 0.01,
         "solver": 'adam',
-        "warm_start": True
+        "warm_start": False
     }
 
     other_layers_sizes = [150, 200, 250, 300, 350, 400, 450, 550, 600, 650]
     ### Train the model and validate
-    clf = MLPClassifier(hidden_layer_sizes=[500,500], max_iter=2000,alpha=0.01, solver='adam', warm_start=True)
+    clf = MLPClassifier(hidden_layer_sizes=[500,500], max_iter=2000,alpha=0.01, solver='adam', warm_start=False)
 
     # Train
     clf.fit(X_train.values, y_train)
