@@ -1,10 +1,12 @@
 import argparse
+import os
 
 import audio_preprocessing
 import sklearn
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier, AdaBoostClassifier
 from joblib import dump, load
 import numpy as np
 import pandas as pd
@@ -79,28 +81,83 @@ def main(create_CSV: bool, training_data_path: Path):
     }
 
     other_layers_sizes = [150, 200, 250, 300, 350, 400, 450, 550, 600, 650]
-    ### Train the model and validate
-    clf = MLPClassifier(hidden_layer_sizes=[500,500], max_iter=2000,alpha=0.01, solver='adam', warm_start=False)
+    ### Train the CLF model and validate
+    if os.path.exists("G:\Documents\CS\CS201R\instrumentID\clf_model.joblib"):
+        clf = load("G:\Documents\CS\CS201R\instrumentID\clf_model.joblib")
+    else:
+        clf = MLPClassifier(hidden_layer_sizes=[500,500], max_iter=2000,alpha=0.01, solver='adam', warm_start=False, verbose=1)
 
     # Train
     clf.fit(X_train.values, y_train)
 
     # Get accuracies, predictions, number of iterations, and best loss
-    train_acc = clf.score(X_train, y_train)
-    test_acc = clf.score(X_test.values, y_test)
-    predictions = pd.DataFrame(enc.inverse_transform(clf.predict(X_test.values)))
-    predictions['Actual'] = enc.inverse_transform(y_test)
-    predictions['Filename'] = f_names_test.values
-    best_loos = clf.best_loss_
-    num_iter = clf.n_iter_
+    clf_train_acc = clf.score(X_train, y_train)
+    clf_test_acc = clf.score(X_test.values, y_test)
+    clf_predictions = pd.DataFrame(enc.inverse_transform(clf.predict(X_test.values)))
+    clf_predictions['Actual'] = enc.inverse_transform(y_test)
+    clf_predictions['Filename'] = f_names_test.values
+    clf_best_loos = clf.best_loss_
+    clf_num_iter = clf.n_iter_
 
     # Put all the values into a table and write the tables to .csv files
-    table = pd.DataFrame({'Train Accuracy': [train_acc], 'Test Accuracy': [test_acc], 'Best Loss': [best_loos], 'Number Iterations': [num_iter]})
-    predictions.to_csv('data5_predictions.csv', index=False)
-    table.to_csv('data5_model_results.txt', mode='a', index=False)
+    clf_table = pd.DataFrame({'Train Accuracy': [clf_train_acc], 'Test Accuracy': [clf_test_acc], 'Best Loss': [clf_best_loos], 'Number Iterations': [clf_num_iter]})
+    clf_predictions.to_csv('clf_predictions.csv', index=False)
+    clf_table.to_csv('clf_model_results.txt', mode='a', index=False)
 
     # Save the current state of the model
-    dump(clf, 'data5_model.joblib')
+    dump(clf, 'clf_model.joblib')
+
+
+    # TRAIN THE GMM
+    if os.path.exists("G:\Documents\CS\CS201R\instrumentID\GMM_model.joblib"):
+        GMM = load("G:\Documents\CS\CS201R\instrumentID\GMM_model.joblib")
+    else:
+        GMM = HistGradientBoostingClassifier(learning_rate=0.01, max_iter=2000, warm_start=True, verbose=1)
+
+    # Train
+    GMM.fit(X_train.values, y_train)
+
+    # Get accuracies, predictions, number of iterations, and best loss
+    GMM_train_acc = GMM.score(X_train, y_train)
+    GMM_test_acc = GMM.score(X_test.values, y_test)
+    GMM_predictions = pd.DataFrame(enc.inverse_transform(GMM.predict(X_test.values)))
+    GMM_predictions['Actual'] = enc.inverse_transform(y_test)
+    GMM_predictions['Filename'] = f_names_test.values
+    GMM_num_iter = GMM.n_iter_
+
+    # Put all the values into a table and write the tables to .csv files
+    table = pd.DataFrame(
+        {'Train Accuracy': [GMM_train_acc], 'Test Accuracy': [GMM_test_acc], 'Number Iterations': [GMM_num_iter]})
+    GMM_predictions.to_csv('gmm_predictions.csv', index=False)
+    table.to_csv('gmm_model_results.txt', mode='a', index=False)
+
+    # Save the current state of the model
+    dump(GMM, 'GMM_model.joblib')
+
+    # TRAIN THE ADA
+    if os.path.exists("G:\Documents\CS\CS201R\instrumentID\\ada_model.joblib"):
+        ADA = load("G:\Documents\CS\CS201R\instrumentID\\ada_model.joblib")
+    else:
+        ADA = AdaBoostClassifier(learning_rate=0.01)
+
+    # Train
+    ADA.fit(X_train.values, y_train)
+
+    # Get accuracies, predictions, number of iterations, and best loss
+    ADA_train_acc = ADA.score(X_train, y_train)
+    ADA_test_acc = ADA.score(X_test.values, y_test)
+    ADA_predictions = pd.DataFrame(enc.inverse_transform(ADA.predict(X_test.values)))
+    ADA_predictions['Actual'] = enc.inverse_transform(y_test)
+    ADA_predictions['Filename'] = f_names_test.values
+
+    # Put all the values into a table and write the tables to .csv files
+    ada_table = pd.DataFrame(
+        {'Train Accuracy': [ADA_train_acc], 'Test Accuracy': [ADA_test_acc]})
+    ADA_predictions.to_csv('ada_predictions.csv', index=False)
+    ada_table.to_csv('ada_model_results.txt', mode='a', index=False)
+
+    # Save the current state of the model
+    dump(ADA, 'ada_model.joblib')
 
     # A single example prediction
     test_X = [-749.64379883,   80.23860931,  -43.81538773,  -43.7645607,   -27.48980141,  -16.35895538,  -23.65286446, -19.15673065,  -13.72361755,   12.83826256,   36.4092598,   51.41631699,   39.2676506,    -0.98627788,  -27.72893715,  -40.71960068,  -22.84813309,   13.56567955,   16.81631088,    0.98919487]
