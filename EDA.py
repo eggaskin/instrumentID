@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 
 # read in data
-pred_df = pd.read_csv('triple_predictions.csv')
+pred_df = pd.read_csv('data5_predictions.csv')
 
 # Get a counter for each instrument. Ex: How many "violin" values are there?
 pred_df_actual_count = Counter(pred_df['Actual'])
@@ -41,3 +41,26 @@ for instrument, count in rearranged_pred_df_actual_count.items():
 # data frame in descending order by error rate
 errors_df = pd.DataFrame(errors_dict.items(), columns=['Instrument', 'Error Rate']).sort_values(by='Error Rate', ascending=False)
 errors_df
+
+# Show Confusion Matrix
+import seaborn as sn
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+
+# get the actual and predicted values
+y_true = pred_df['Actual']
+y_pred = pred_df['0']
+
+# create confusion matrix
+columns = np.unique(y_true)
+data = confusion_matrix(y_true, y_pred, labels=columns)
+
+df_cm = pd.DataFrame(data, columns=columns, index=columns)
+df_cm.index.name = 'Actual'
+df_cm.columns.name = 'Predicted'
+plt.figure(figsize=(10, 7))
+sn.set(font_scale=1.4)  # for label size
+sn.heatmap(df_cm, cmap="Blues", annot=df_cm, annot_kws={"size": 11})  # font size
+plt.xticks(rotation=80)
+plt.show()
