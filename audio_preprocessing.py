@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from librosa import feature
 import librosa
+import nlpaug.augmenter.audio as naa
 
 
 # A function to play back the audio
@@ -43,6 +44,9 @@ def create_chunks(audio, filename):
         curr_chunk.export(out_f=filename + '-' + str(chunk_no) + '.wav', format="wav")
         t1, t2 = t2, t1
 
+def addWhiteNoise(signal):
+    audio = naa.NoiseAug(zone=(0,1), color='white').augment(signal)
+    return audio[0]
 
 # A function to display a waveplot of the original audio
 def displayWavePlot(signal, sample_rate):
@@ -76,7 +80,8 @@ def mel_spectogram_generator(audio_name, signal, sample_rate, augmentation, targ
         plt.title('Mel-Spectrogram (dB)', fontdict=dict(size=18))
         plt.xlabel('Time', fontdict=dict(size=15))
         plt.ylabel('Frequency', fontdict=dict(size=15))
-        # plt.show()
+        if create_figure:
+            plt.show()
 
         plt.savefig(os.path.join(target_path + augmentation + audio_name[:-4] + '.png'))
         plt.clf()
@@ -85,20 +90,24 @@ def mel_spectogram_generator(audio_name, signal, sample_rate, augmentation, targ
 
 
 # The preprocessing function that should be called by other methods
-def preprocessing(data_folder, file_to_open: Path):
+def preprocessing(data_folder, file_to_open: Path, attempts = 0):
     # Use regex to get the correct class name for the file
     instrument = file_to_open.name.split('-')[0]
+    attempts += 1
 
     # Some of the files don't work so it is wrapped in a try-catch block
     try:
         signal, sample_rate = librosa.load(file_to_open, sr=None)
     except Exception as e:
         print("Preprocessing Exception: " + str(e))
-        bad_sounds_folder = Path('datasets/bad-sounds')
-        if not bad_sounds_folder.exists():
-            os.mkdir(bad_sounds_folder)
-        os.rename(file_to_open, bad_sounds_folder / file_to_open.name)
-        raise Exception("Bad File: " + str(file_to_open))
+        if attempts <= 4:
+            preprocessing(data_folder, file_to_open, attempts)
+        else:
+            bad_sounds_folder = Path('datasets/bad-sounds')
+            if not bad_sounds_folder.exists():
+                os.mkdir(bad_sounds_folder)
+            os.rename(file_to_open, bad_sounds_folder / file_to_open.name)
+            raise Exception("Bad File: " + str(file_to_open))
 
     # If we ever need to create chunks in the future, this code will do it
     # augmentation = re.search(r'[^\\]+$', str(file_to_open))
@@ -106,6 +115,9 @@ def preprocessing(data_folder, file_to_open: Path):
 
     # Remove silence from the file
     signal = removeSilence(signal)
+
+    # Add some white noise
+    signal = addWhiteNoise(signal)
 
     # Create the mel-spectrogram vector
     return (

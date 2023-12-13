@@ -52,3 +52,7 @@ Train Accuracy,Test Accuracy,Best Loss,Number Iterations
 0.9610113877629801,0.8862909451858387,,74
 Train Accuracy,Test Accuracy,Best Loss,Number Iterations
 0.9639341550169576,0.8789015109738613,,78
+Train Accuracy,Test Accuracy,Best Loss,Number Iterations
+0.9672263916635171,0.741308572662492,0.14688232546593152,165
+Train Accuracy,Test Accuracy,Best Loss,Number Iterations
+0.9578956075771362,0.8196757472151759,0.1729526660392433,111

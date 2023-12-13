@@ -1,0 +1,6 @@
+Train Accuracy,Test Accuracy,Number Iterations
+0.9693936636611796,0.8094187713686997,1549
+Train Accuracy,Test Accuracy,Number Iterations
+0.9563790773981857,0.8016984669681262,1249
+Train Accuracy,Test Accuracy,Number Iterations
+0.38191744561171315,0.38094187713686994,1250
