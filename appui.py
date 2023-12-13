@@ -45,12 +45,11 @@ if wav_audio_data is not None:
     st.write(dat)
 
     # loading a model from pickle
-    model = joblib.load('model.joblib')
+    model = joblib.load('data5_model.joblib')
     # using the loaded model to make predictions
 
     # only predict if dat does not contain nan
     if len(dat) >0: #dat != None: #not np.isnan(dat).any():
-
         pred = model.predict(dat)
         st.write("Your prediction:")
         st.write(pred)
