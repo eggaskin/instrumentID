@@ -42,7 +42,7 @@ if wav_audio_data is not None:
     signal = removeSilence(signal)
     dat, fig = mel_spectogram_generator('out', signal, sr, "", os.path.join("/", 'output'), True)
     st.pyplot(fig)
-    
+
     dat = np.array(dat).reshape(1, -1)
     st.write(dat)
 
@@ -53,9 +53,6 @@ if wav_audio_data is not None:
     # only predict if dat does not contain nan
     if len(dat) >0: #dat != None: #not np.isnan(dat).any():
         pred = model.predict(dat)
-        st.write("Your prediction:")
-        st.write(pred)
-
         # read in classes from encoder_classes.csv and get index
         enc_classes = pd.read_csv("encoder_classes.csv")
         enc_classes = [i[0] for i in enc_classes.values.tolist()]
