@@ -49,7 +49,7 @@ def displayWavePlot(signal, sample_rate):
 
 
 # A function to generate and potentially display the mel-spectrogram
-def mel_spectogram_generator(audio_name, signal, sample_rate, augmentation, target_path, create_figure):
+def mel_spectogram_generator(audio_name, signal, sample_rate, augmentation, target_path, displayfig):
     N_FFT = 1028
     HOP_SIZE = 256
     N_MELS = 128
@@ -66,7 +66,7 @@ def mel_spectogram_generator(audio_name, signal, sample_rate, augmentation, targ
     spectrogram = np.abs(mel_signal)
     output_spectrogram = librosa.power_to_db(spectrogram, ref=np.max)
 
-    if create_figure:
+    if displayfig:
         plt.figure(figsize=(8, 7))
         librosa.display.specshow(output_spectrogram, sr=sample_rate, x_axis='time', y_axis='mel', cmap='magma',
                                  hop_length=HOP_SIZE)
@@ -76,10 +76,12 @@ def mel_spectogram_generator(audio_name, signal, sample_rate, augmentation, targ
         plt.ylabel('Frequency', fontdict=dict(size=15))
         # plt.show()
 
-        plt.savefig(os.path.join(target_path + augmentation + audio_name[:-4] + '.png'))
-        plt.clf()
-        plt.close("all")
-    return np.mean(librosa.feature.mfcc(S=output_spectrogram, sr=sample_rate, n_mfcc=20).T, axis=0).tolist()
+        fig = plt.gcf()
+
+        #plt.savefig(os.path.join(target_path + augmentation + audio_name[:-4] + '.png'))
+        #plt.clf()
+        #plt.close("all")
+    return np.mean(librosa.feature.mfcc(S=output_spectrogram, sr=sample_rate, n_mfcc=20).T, axis=0).tolist(), fig
 
 
 # The preprocessing function that should be called by other methods

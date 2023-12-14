@@ -40,7 +40,9 @@ if wav_audio_data is not None:
 
     # Remove silence
     signal = removeSilence(signal)
-    dat = mel_spectogram_generator('out', signal, sr, "", os.path.join("/", 'output'), False)
+    dat, fig = mel_spectogram_generator('out', signal, sr, "", os.path.join("/", 'output'), True)
+    st.pyplot(fig)
+    
     dat = np.array(dat).reshape(1, -1)
     st.write(dat)
 
